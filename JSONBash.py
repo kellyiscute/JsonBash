@@ -1,30 +1,36 @@
 import json
 import copy
 
-json_path = ''
+JSON_PATH = ''
 
 
 def remove_empty(lst: list) -> list:
-    result = []
-    for j in range(0, lst.__len__()):
-        if lst[j].__len__() != 0:
-            result.append(lst[j])
-
+    # result = []
+    # for item in lst:
+    #     if len(item) != 0:
+    #         result.append(item)
+    result = [item for item in lst if len(item) != 0]
     return result
 
 
 def check_path(path: str, obj: dict) -> bool:
+    """
+    Check if each level of path is in the names of obj.
+
+    Args:
+        path: This is the first param.
+        obj: This is a second param.
+
+    Returns:
+        The Boolean of the checkage.
+    """
     levels = path.split('/')
     levels = remove_empty(levels)
-    local_json = copy.deepcopy(obj)
     result = True
-    for j in range(0, levels.__len__()):
-        if levels[j] in local_json.keys():
-            local_json = local_json[levels[j]]
-        else:
+    for level in levels:
+        if not level in obj.keys():
             result = False
             break
-
     return result
 
 
@@ -33,7 +39,7 @@ def get_content(path: str, obj: dict):
     levels = remove_empty(levels)
     local_json = copy.deepcopy(obj)
     for j in range(0, levels.__len__()):
-        local_json = local_json[levels[j]]
+        local_json = local_json[levels[j]]  # TODO: explanation required
 
     return local_json
 
@@ -57,28 +63,28 @@ if __name__ == '__main__':
     json_parsed = json.loads(json_content)
 
     while True:
-        instruction = input(json_path + ' >>> ')
+        instruction = input(JSON_PATH + ' >>> ')
         command = instruction.split(' ')[0]
         if command == 'goto':
             if instruction.split(' ').__len__() > 1 and instruction.split(' ')[1] == '..':
-                if json_path != '':
-                    old_path = json_path
-                    json_path = ''
+                if JSON_PATH != '':
+                    old_path = JSON_PATH
+                    JSON_PATH = ''
                     for i in range(0, old_path.split('/').__len__()-1):
-                        json_path += str(old_path.split('/')[i]) + '/'
+                        JSON_PATH += str(old_path.split('/')[i]) + '/'
             elif instruction.split(' ').__len__() > 1:
-                if check_path(json_path + '/' + instruction.split(' ')[1], json_parsed):
-                    json_path += '/' + instruction.split(' ')[1]
+                if check_path(JSON_PATH + '/' + instruction.split(' ')[1], json_parsed):
+                    JSON_PATH += '/' + instruction.split(' ')[1]
                 else:
                     print('key does not exist')
             else:
                 print('Where is your freaking parameter!')
         if command == 'get':
             if instruction.split(' ').__len__() > 1:
-                print(get_content(json_path + str(instruction.split(' ')[1]), json_parsed))
+                print(get_content(JSON_PATH + str(instruction.split(' ')[1]), json_parsed))
             else:
-                print(get_content(json_path, json_parsed))
+                print(get_content(JSON_PATH, json_parsed))
         if command == 'ls':
-            k = (get_keys(json_path, json_parsed))
+            k = (get_keys(JSON_PATH, json_parsed))
             for j in range(0, k.__len__()):
                 print(k[j])
